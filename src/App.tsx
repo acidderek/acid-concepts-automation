@@ -1152,6 +1152,18 @@ function App() {
                       </div>
 
                       <div className="border border-gray-200 rounded-lg p-4">
+                        <h4 className="font-medium mb-3">OpenRouter</h4>
+                        <input
+                          type="password"
+                          placeholder="sk-or-v1-..."
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                        />
+                        <button className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">
+                          Save & Test
+                        </button>
+                      </div>
+                      
+                      <div className="border border-gray-200 rounded-lg p-4">
                         <h4 className="font-medium mb-3">Reddit</h4>
                         <div className="space-y-2">
                           <input
