@@ -75,7 +75,6 @@ The key additions are:
     avoidControversy: true,
     personalityTone: 'professional'
   });
-
   const [scheduleSettings, setScheduleSettings] = useState({
     timezone: 'UTC',
     activeDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
