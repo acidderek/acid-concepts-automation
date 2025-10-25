@@ -1,5 +1,3 @@
-# Create the complete setup script manually
-cat > complete_setup.sh << 'EOF'
 #!/bin/bash
 
 echo "🚀 ACID CONCEPTS - COMPLETE APPLICATION SETUP"
@@ -58,8 +56,3 @@ CSS_EOF
 
 echo "✅ Basic setup completed!"
 echo "Now run: chmod +x complete_setup.sh && ./complete_setup.sh"
-EOF
-
-# Make it executable and run
-chmod +x complete_setup.sh
-./complete_setup.sh
