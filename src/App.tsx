@@ -229,7 +229,7 @@ function App() {
   // API Key management functions
   const handleSaveAPIKey = async (platform, keyData) => {
     try {
-      const { data, error } = await supabase.functions.invoke('api_key_manager_fixed_2025_10_25_23_00', {
+      const { data, error } = await supabase.functions.invoke('api_key_manager_simple_2025_10_25_23_00', {
         body: {
           action: 'store',
           user_id: user?.id,
