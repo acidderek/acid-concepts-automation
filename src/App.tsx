@@ -34,7 +34,10 @@ function App() {
   const [analytics, setAnalytics] = useState({
     total_posts: 0,
     total_responses: 0,
-    engagement_rate: 0
+    engagement_rate: 0,
+    active_campaigns: 0,
+    pending_responses: 0,
+    success_rate: 0
   });
   const [automationStatus, setAutomationStatus] = useState({});
 
