@@ -365,14 +365,14 @@ The key additions are:
 
   // Custom SVG Logo Component
   const LogoComponent = () => (
-    <svg width="120" height="40" viewBox="0 0 120 40" className="h-8 w-auto">
+    <svg width="200" height="60" viewBox="0 0 200 60" className="h-12 w-auto">
       <defs>
         <linearGradient id="acidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#3b82f6" />
           <stop offset="100%" stopColor="#1d4ed8" />
         </linearGradient>
       </defs>
-      <text x="10" y="25" fontSize="18" fontWeight="bold" fill="url(#acidGradient)" fontFamily="Arial, sans-serif">
+      <text x="15" y="40" fontSize="28" fontWeight="bold" fill="url(#acidGradient)" fontFamily="Arial, sans-serif">
         ACID
       </text>
     </svg>
