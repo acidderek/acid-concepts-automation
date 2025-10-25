@@ -10,6 +10,15 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [campaignTab, setCampaignTab] = useState('create');
+
+  // Campaign form state
+  const [campaignName, setCampaignName] = useState('');
+  const [subreddit, setSubreddit] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [responseTemplate, setResponseTemplate] = useState('');
+  const [maxResponses, setMaxResponses] = useState(10);
+  const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,6 +60,19 @@ function App() {
     } catch (error) {
       setMessage('An error occurred');
     }
+  };
+
+  const handleCreateCampaign = async (e) => {
+    e.preventDefault();
+    setMessage('Campaign created successfully! (Demo mode)');
+    
+    // Reset form
+    setCampaignName('');
+    setSubreddit('');
+    setKeywords('');
+    setResponseTemplate('');
+    setMaxResponses(10);
+    setIsActive(false);
   };
 
   if (loading) {
@@ -134,6 +156,176 @@ function App() {
     );
   }
 
+  const renderCampaignContent = () => {
+    switch (campaignTab) {
+      case 'create':
+        return (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-bold mb-6">Create New Campaign</h3>
+            
+            <form onSubmit={handleCreateCampaign} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Campaign Name
+                  </label>
+                  <input
+                    type="text"
+                    value={campaignName}
+                    onChange={(e) => setCampaignName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="My Reddit Campaign"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Target Subreddit
+                  </label>
+                  <input
+                    type="text"
+                    value={subreddit}
+                    onChange={(e) => setSubreddit(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="r/technology"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Keywords (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="AI, automation, technology"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Response Template
+                </label>
+                <textarea
+                  value={responseTemplate}
+                  onChange={(e) => setResponseTemplate(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Thanks for sharing! This is really interesting..."
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Max Responses per Day
+                  </label>
+                  <input
+                    type="number"
+                    value={maxResponses}
+                    onChange={(e) => setMaxResponses(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min="1"
+                    max="100"
+                  />
+                </div>
+                
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                    Activate immediately
+                  </label>
+                </div>
+              </div>
+              
+              {message && (
+                <div className="text-sm text-green-600">
+                  {message}
+                </div>
+              )}
+              
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Create Campaign
+              </button>
+            </form>
+          </div>
+        );
+        
+      case 'active':
+        return (
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-xl font-bold mb-6">Active Campaigns</h3>
+            <div className="text-center py-8">
+              <div className="text-gray-400 mb-4">
+                <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-medium text-gray-900 mb-2">No Active Campaigns</h4>
+              <p className="text-gray-600 mb-4">Create your first campaign to get started</p>
+              <button
+                onClick={() => setCampaignTab('create')}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Create Campaign
+              </button>
+            </div>
+          </div>
+        );
+        
+      case 'analytics':
+        return (
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h3 className="text-xl font-bold mb-6">Campaign Analytics</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 text-sm">Total Posts Monitored</h4>
+                  <p className="text-2xl font-bold text-blue-600">0</p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-green-900 text-sm">Responses Sent</h4>
+                  <p className="text-2xl font-bold text-green-600">0</p>
+                </div>
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-yellow-900 text-sm">Engagement Rate</h4>
+                  <p className="text-2xl font-bold text-yellow-600">0%</p>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-purple-900 text-sm">AI Usage</h4>
+                  <p className="text-2xl font-bold text-purple-600">0</p>
+                </div>
+              </div>
+              
+              <div className="text-center py-8">
+                <p className="text-gray-600">Analytics will be available once campaigns are executed and monitoring data is collected.</p>
+              </div>
+            </div>
+          </div>
+        );
+        
+      default:
+        return null;
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -158,49 +350,102 @@ function App() {
             </div>
             
             <div className="bg-white p-6 rounded-lg shadow">
-              <h3 className="text-xl font-bold mb-4">Getting Started</h3>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">1</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Create Your First Campaign</h4>
-                    <p className="text-sm text-gray-600">Set up automation parameters</p>
-                  </div>
+              <h3 className="text-xl font-bold mb-4">Reddit Automation Platform</h3>
+              <p className="text-gray-600 mb-6">Automate your Reddit engagement with intelligent responses and monitoring.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Key Features:</h4>
+                  <ul className="space-y-2 text-sm text-gray-600">
+                    <li className="flex items-center">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                      Automated post monitoring
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                      Keyword-based targeting
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                      AI-powered responses
+                    </li>
+                    <li className="flex items-center">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                      Real-time analytics
+                    </li>
+                  </ul>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-semibold">2</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Configure API Access</h4>
-                    <p className="text-sm text-gray-600">Connect your Reddit account</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-semibold">3</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium">Launch & Monitor</h4>
-                    <p className="text-sm text-gray-600">Track performance</p>
+                
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Quick Actions:</h4>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        setActiveTab('campaigns');
+                        setCampaignTab('create');
+                      }}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-left"
+                    >
+                      Create New Campaign
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveTab('campaigns');
+                        setCampaignTab('analytics');
+                      }}
+                      className="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 text-left"
+                    >
+                      View Analytics
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         );
+        
       case 'campaigns':
         return (
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-xl font-bold mb-4">Campaign Management</h3>
-            <p className="text-gray-600 mb-4">Create and manage your automation campaigns</p>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              Create New Campaign
-            </button>
+          <div className="space-y-6">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="flex space-x-1">
+                <button
+                  onClick={() => setCampaignTab('create')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    campaignTab === 'create'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Create Campaign
+                </button>
+                <button
+                  onClick={() => setCampaignTab('active')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    campaignTab === 'active'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Active Campaigns
+                </button>
+                <button
+                  onClick={() => setCampaignTab('analytics')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    campaignTab === 'analytics'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  Analytics
+                </button>
+              </div>
+            </div>
+            
+            {renderCampaignContent()}
           </div>
         );
+        
       default:
         return <div>Content for {activeTab}</div>;
     }
