@@ -24,14 +24,7 @@ function App() {
   const [isActive, setIsActive] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
   const [platformConfigs, setPlatformConfigs] = useState({});
-  
-  // Real database integration states
-  const [companies, setCompanies] = useState([]);
-  
-  // Multi-platform campaign states
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
-  const [platformConfigs, setPlatformConfigs] = useState({});
-  
+
   // Real database integration states
   const [companies, setCompanies] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -40,7 +33,7 @@ function App() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [analytics, setAnalytics] = useState({});
   const [automationStatus, setAutomationStatus] = useState({});
-  
+
   // Campaign Intelligence states
   const [intelligenceTab, setIntelligenceTab] = useState('documents');
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
@@ -50,11 +43,6 @@ function App() {
   // API Key Management states
   const [apiKeys, setApiKeys] = useState({});
   const [keyValidation, setKeyValidation] = useState({});
-The key additions are:
-
-  // Multi-platform campaign states
-  const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
-  const [platformConfigs, setPlatformConfigs] = useState({});
 
   // Advanced monitoring and AI settings
   const [monitoringRules, setMonitoringRules] = useState({
@@ -75,6 +63,7 @@ The key additions are:
     avoidControversy: true,
     personalityTone: 'professional'
   });
+
   const [scheduleSettings, setScheduleSettings] = useState({
     timezone: 'UTC',
     activeDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
