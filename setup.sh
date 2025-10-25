@@ -5,6 +5,10 @@ import { supabase } from '@/integrations/supabase/client';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -20,6 +24,33 @@ function App() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) setMessage(error.message);
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) {
+          setMessage(error.message);
+        } else {
+          setMessage('Check your email for the confirmation link!');
+        }
+      }
+    } catch (error) {
+      setMessage('An error occurred');
+    }
+  };
 
   if (loading) {
     return (
@@ -37,9 +68,57 @@ function App() {
             <h2 className="text-3xl font-bold text-gray-900">Acid Concepts</h2>
             <p className="mt-2 text-gray-600">Professional Automation Platform</p>
           </div>
+          
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium mb-4">Sign In Required</h3>
-            <p className="text-gray-600">Please sign in to access your automation dashboard.</p>
+            <h3 className="text-lg font-medium mb-4">
+              {isLogin ? 'Sign In' : 'Create Account'}
+            </h3>
+            
+            <form onSubmit={handleAuth} className="space-y-4">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              <div>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              
+              {message && (
+                <div className={`text-sm ${message.includes('error') || message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+                  {message}
+                </div>
+              )}
+              
+              <button
+                type="submit"
+                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {isLogin ? 'Sign In' : 'Sign Up'}
+              </button>
+            </form>
+            
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-blue-600 hover:text-blue-500 text-sm"
+              >
+                {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
