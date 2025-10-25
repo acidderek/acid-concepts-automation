@@ -14,6 +14,19 @@ function App() {
   const [commentsTab, setCommentsTab] = useState('table');
   const [commentsView, setCommentsView] = useState('all');
 
+  // Campaign form state - MISSING VARIABLES ADDED HERE
+  const [campaignName, setCampaignName] = useState('');
+  const [platform, setPlatform] = useState('reddit');
+  const [targetLocation, setTargetLocation] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [responseTemplate, setResponseTemplate] = useState('');
+  const [maxResponses, setMaxResponses] = useState(10);
+  const [isActive, setIsActive] = useState(false);
+
+  // Multi-platform campaign states
+  const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
+  const [platformConfigs, setPlatformConfigs] = useState({});
+
   // Real database integration states
   const [companies, setCompanies] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -32,6 +45,7 @@ function App() {
   // API Key Management states
   const [apiKeys, setApiKeys] = useState({});
   const [keyValidation, setKeyValidation] = useState({});
+The key additions are:
 
   // Multi-platform campaign states
   const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
