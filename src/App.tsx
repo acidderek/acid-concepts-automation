@@ -365,17 +365,19 @@ The key additions are:
 
   // Custom SVG Logo Component
   const LogoComponent = () => (
-    <svg width="200" height="60" viewBox="0 0 200 60" className="h-12 w-auto">
-      <defs>
-        <linearGradient id="acidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#1d4ed8" />
-        </linearGradient>
-      </defs>
-      <text x="15" y="40" fontSize="28" fontWeight="bold" fill="url(#acidGradient)" fontFamily="Arial, sans-serif">
-        ACID
-      </text>
-    </svg>
+    <div className="flex items-center justify-center">
+      <svg width="160" height="50" viewBox="0 0 160 50" className="h-10 w-auto">
+        <defs>
+          <linearGradient id="acidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
+          </linearGradient>
+        </defs>
+        <text x="80" y="32" fontSize="24" fontWeight="bold" fill="url(#acidGradient)" fontFamily="Arial, sans-serif" textAnchor="middle">
+          ACID
+        </text>
+      </svg>
+    </div>
   );
 
   if (loading) {
