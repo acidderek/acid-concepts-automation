@@ -1,5 +1,4 @@
-# Replace the corrupted vite.config.ts file
-cat > vite.config.ts << 'EOF'
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
@@ -12,12 +11,3 @@ export default defineConfig({
     },
   },
 })
-EOF
-
-# Check the file is correct
-cat vite.config.ts
-
-# Commit and push the fix
-git add vite.config.ts
-git commit -m "Fix corrupted vite.config.ts file"
-git push
