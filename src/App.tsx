@@ -14,7 +14,7 @@ function App() {
   const [commentsTab, setCommentsTab] = useState('table');
   const [commentsView, setCommentsView] = useState('all');
 
-  // Campaign form state - MISSING VARIABLES ADDED HERE
+ // Campaign form state
   const [campaignName, setCampaignName] = useState('');
   const [platform, setPlatform] = useState('reddit');
   const [targetLocation, setTargetLocation] = useState('');
@@ -22,7 +22,9 @@ function App() {
   const [responseTemplate, setResponseTemplate] = useState('');
   const [maxResponses, setMaxResponses] = useState(10);
   const [isActive, setIsActive] = useState(false);
-
+  const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
+  const [platformConfigs, setPlatformConfigs] = useState({});
+  
   // Multi-platform campaign states
   const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
   const [platformConfigs, setPlatformConfigs] = useState({});
