@@ -14,7 +14,7 @@ function App() {
   const [commentsTab, setCommentsTab] = useState('table');
   const [commentsView, setCommentsView] = useState('all');
 
- // Campaign form state
+  // Campaign form state
   const [campaignName, setCampaignName] = useState('');
   const [platform, setPlatform] = useState('reddit');
   const [targetLocation, setTargetLocation] = useState('');
@@ -25,10 +25,13 @@ function App() {
   const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
   const [platformConfigs, setPlatformConfigs] = useState({});
   
+  // Real database integration states
+  const [companies, setCompanies] = useState([]);
+  
   // Multi-platform campaign states
   const [selectedPlatforms, setSelectedPlatforms] = useState(['reddit']);
   const [platformConfigs, setPlatformConfigs] = useState({});
-
+  
   // Real database integration states
   const [companies, setCompanies] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
@@ -37,7 +40,7 @@ function App() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [analytics, setAnalytics] = useState({});
   const [automationStatus, setAutomationStatus] = useState({});
-
+  
   // Campaign Intelligence states
   const [intelligenceTab, setIntelligenceTab] = useState('documents');
   const [uploadedDocuments, setUploadedDocuments] = useState([]);
