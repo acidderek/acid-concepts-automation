@@ -31,7 +31,11 @@ function App() {
   const [comments, setComments] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [analytics, setAnalytics] = useState({});
+  const [analytics, setAnalytics] = useState({
+    total_posts: 0,
+    total_responses: 0,
+    engagement_rate: 0
+  });
   const [automationStatus, setAutomationStatus] = useState({});
 
   // Campaign Intelligence states
@@ -262,7 +266,7 @@ function App() {
       
       if (error) throw error;
       setMessage('Document uploaded and processed successfully!');
-      loadDocuments();
+      // loadDocuments(); // TODO: Implement document loading
     } catch (error) {
       setMessage('Error uploading document: ' + error.message);
     }
