@@ -122,6 +122,83 @@ function App() {
     setMessage(`Bucket "${bucketToDelete}" deleted successfully! (Demo mode)`);
   };
 
+  // SVG Logo Component
+  const LogoComponent = ({ size = "large" }) => {
+    const dimensions = size === "large" ? { width: 200, height: 60 } : { width: 120, height: 36 };
+    
+    return (
+      <svg 
+        width={dimensions.width} 
+        height={dimensions.height} 
+        viewBox="0 0 200 60" 
+        xmlns="http://www.w3.org/2000/svg"
+        className={size === "large" ? "mx-auto" : ""}
+      >
+        <defs>
+          <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="50%" stopColor="#3b82f6" />
+            <stop offset="100%" stopColor="#1d4ed8" />
+          </linearGradient>
+          <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#06b6d4" />
+            <stop offset="100%" stopColor="#0891b2" />
+          </linearGradient>
+        </defs>
+        
+        {/* Background rounded rectangle */}
+        <rect 
+          width="200" 
+          height="60" 
+          rx="8" 
+          fill="url(#logoGradient)" 
+        />
+        
+        {/* Decorative circles */}
+        <circle cx="20" cy="20" r="6" fill="url(#accentGradient)" opacity="0.8" />
+        <circle cx="180" cy="40" r="4" fill="url(#accentGradient)" opacity="0.6" />
+        <circle cx="25" cy="45" r="3" fill="white" opacity="0.4" />
+        
+        {/* Main text */}
+        <text 
+          x="100" 
+          y="25" 
+          fontFamily="Arial, sans-serif" 
+          fontSize="14" 
+          fontWeight="bold" 
+          textAnchor="middle" 
+          fill="white"
+        >
+          ACID CONCEPTS
+        </text>
+        
+        {/* Subtitle */}
+        <text 
+          x="100" 
+          y="42" 
+          fontFamily="Arial, sans-serif" 
+          fontSize="8" 
+          textAnchor="middle" 
+          fill="white" 
+          opacity="0.9"
+        >
+          AUTOMATION PLATFORM
+        </text>
+        
+        {/* Decorative line */}
+        <line 
+          x1="40" 
+          y1="30" 
+          x2="160" 
+          y2="30" 
+          stroke="white" 
+          strokeWidth="1" 
+          opacity="0.3"
+        />
+      </svg>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -135,16 +212,8 @@ function App() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full space-y-8 p-8">
           <div className="text-center">
-            <img 
-              src="/images/acidlogo.png" 
-              alt="Acid Concepts" 
-              className="mx-auto h-16 w-auto mb-4"
-              onError={(e) => {
-                console.log('Logo failed to load');
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <h2 className="text-3xl font-bold text-gray-900">Acid Concepts</h2>
+            <LogoComponent size="large" />
+            <h2 className="text-3xl font-bold text-gray-900 mt-4">Acid Concepts</h2>
             <p className="mt-2 text-gray-600">Professional Automation Platform</p>
           </div>
           
@@ -866,15 +935,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-8">
-              <img 
-                src="/images/acidlogo.png" 
-                alt="Acid Concepts" 
-                className="h-8 w-auto"
-                onError={(e) => {
-                  console.log('Header logo failed to load');
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              <LogoComponent size="small" />
               
               <nav className="flex space-x-4">
                 <button
