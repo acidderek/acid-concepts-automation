@@ -136,6 +136,10 @@ function App() {
   const [wasabiEndpoint, setWasabiEndpoint] = useState('s3.wasabisys.com');
   const [wasabiRegion, setWasabiRegion] = useState('us-east-1');
   const [bucketName, setBucketName] = useState('');
+  
+  // Campaign state
+  const [campaigns, setCampaigns] = useState([]);
+  
   // Comment management state
   const [comments, setComments] = useState([
     {
@@ -497,7 +501,7 @@ function App() {
       loadCampaigns();
       
       // Send notification
-      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'create_notification',
           user_id: user.id,
@@ -536,7 +540,7 @@ function App() {
       loadCampaigns(); // Reload to show updated status
       
       // Send notification
-      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'send_campaign_notification',
           user_id: user.id,
@@ -582,7 +586,7 @@ function App() {
       setMessage('Saving API key...');
       console.log('Saving API key:', { platform, keyType, keyName });
 
-      const { data, error } = await supabase.functions.invoke('api_key_manager_final_2025_10_25_23_00', {
+      const { data, error } = await supabase.functions.invoke('api_key_manager_robust_2025_10_26_01_00', {
         body: JSON.stringify({
           action: 'store_key',
           platform,
@@ -599,7 +603,7 @@ function App() {
       setMessage(`${platform} API key saved successfully!`);
       
       // Send notification
-      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'create_notification',
           user_id: user.id,
@@ -625,7 +629,7 @@ function App() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      const { data, error } = await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'get_notifications',
           user_id: user.id,
@@ -645,7 +649,7 @@ function App() {
 
   const markNotificationRead = async (notificationId) => {
     try {
-      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'mark_read',
           notification_id: notificationId,
@@ -781,7 +785,7 @@ function App() {
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
         body: {
           action: 'get_status',
           user_id: user.id
@@ -816,7 +820,7 @@ function App() {
       
       const redirectUri = `${window.location.origin}/auth/reddit/callback`;
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
         body: {
           action: 'start_auth',
           user_id: user.id,
@@ -845,7 +849,7 @@ function App() {
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
         body: {
           action: 'handle_callback',
           code,
@@ -866,7 +870,7 @@ function App() {
       setMessage('Reddit authentication successful!');
       
       // Send notification
-      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+      await supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
         body: {
           action: 'create_notification',
           user_id: user.id,
@@ -891,7 +895,7 @@ function App() {
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
         body: {
           action: 'refresh_token',
           user_id: user.id
@@ -3919,7 +3923,7 @@ function App() {
                 <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
                 <div className="flex space-x-2">
                   <button 
-                    onClick={() => supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+                    onClick={() => supabase.functions.invoke('notification_manager_fixed_2025_10_26_01_00', {
                       body: { action: 'mark_all_read', user_id: user.id }
                     }).then(() => loadNotifications())}
                     className="text-blue-600 hover:text-blue-800 text-sm"
