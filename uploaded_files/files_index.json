@@ -1,0 +1,25 @@
+{
+  "documents": [],
+  "tables_parsed": [],
+  "tables_source_info": [],
+  "images": [
+    {
+      "original_name": "Screenshot 2025-10-26 at 4.01.07 PM",
+      "file_name": "Screenshot 2025-10-26 at 4.01.07 PM.png",
+      "file_path": "/workspace/reddit_automation/public/images/Screenshot 2025-10-26 at 4.01.07 PM.png",
+      "rel_path": "images/Screenshot 2025-10-26 at 4.01.07 PM.png",
+      "file_type": "png",
+      "category": "images"
+    }
+  ],
+  "summary": {
+    "total_files": 1,
+    "by_category": {
+      "documents": 0,
+      "tables_parsed": 0,
+      "tables_source_info": 0,
+      "images": 1
+    },
+    "processing_time": null
+  }
+}

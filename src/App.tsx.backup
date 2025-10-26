@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ModernRedditSettings from './components/ModernRedditSettings';
-import RedditCallback from './pages/RedditCallback';
 
 function App() {
-  // Check if this is the Reddit callback page
-  if (window.location.pathname === '/auth/reddit/callback') {
-    return <RedditCallback />;
-  }
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -394,27 +389,7 @@ function App() {
       }
     );
 
-    // Listen for Reddit OAuth popup messages
-    const handleMessage = (event) => {
-      if (event.origin !== window.location.origin) return;
-      
-      if (event.data.type === 'REDDIT_OAUTH_SUCCESS') {
-        setMessage('✅ Reddit account connected successfully!');
-        checkRedditAuthStatus();
-        setTimeout(() => setMessage(''), 3000);
-      } else if (event.data.type === 'REDDIT_OAUTH_ERROR') {
-        setMessage(`❌ Reddit authentication failed: ${event.data.error}`);
-        setRedditAuthStatus(prev => ({ ...prev, loading: false }));
-        setTimeout(() => setMessage(''), 5000);
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    return () => {
-      subscription.unsubscribe();
-      window.removeEventListener('message', handleMessage);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   // Real database integration functions
@@ -961,7 +936,7 @@ function App() {
       
       console.log('Calling Reddit OAuth with user ID:', user.id);
       
-      const { data, error } = await supabase.functions.invoke('simple_reddit_oauth_2025_10_26_16_00', {
+      const { data, error } = await supabase.functions.invoke('simple_reddit_oauth_2025_10_26_02_00', {
         body: {
           action: 'get_status',
           user_id: user.id
@@ -1003,7 +978,7 @@ function App() {
       
       const redirectUri = `${window.location.origin}/auth/reddit/callback`;
       
-      const { data, error } = await supabase.functions.invoke('simple_reddit_oauth_2025_10_26_16_00', {
+      const { data, error } = await supabase.functions.invoke('simple_reddit_oauth_2025_10_26_02_00', {
         body: {
           action: 'start_auth',
           user_id: user.id,
@@ -1014,36 +989,8 @@ function App() {
       if (error) throw error;
 
       if (data.auth_url) {
-        // Open Reddit OAuth in popup window
-        const popup = window.open(
-          data.auth_url,
-          'reddit_oauth',
-          'width=600,height=700,scrollbars=yes,resizable=yes'
-        );
-
-        if (!popup) {
-          throw new Error('Popup blocked. Please allow popups for this site.');
-        }
-
-        // Listen for popup to close or send message
-        const checkClosed = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(checkClosed);
-            // Check auth status after popup closes
-            checkRedditAuthStatus();
-          }
-        }, 1000);
-
-        // Set timeout to close popup after 5 minutes
-        setTimeout(() => {
-          if (!popup.closed) {
-            popup.close();
-            clearInterval(checkClosed);
-            setMessage('Reddit authentication timed out');
-            setRedditAuthStatus(prev => ({ ...prev, loading: false }));
-          }
-        }, 5 * 60 * 1000);
-
+        // Redirect to Reddit OAuth
+        window.location.href = data.auth_url;
       } else {
         throw new Error('No auth URL received');
       }
@@ -3142,7 +3089,7 @@ function App() {
             )}
 
             {/* Kanban Board View */}
-            {commentsTab === 'kanban' && (
+            {commentsTab === 'kanban' && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {/* Pending Column */}
                 <div className="bg-yellow-50 rounded-lg p-4">
@@ -3561,13 +3508,13 @@ function App() {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          {doc.status === 'completed' && (
+                          {doc.status === 'completed' && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                             <>
                               <span className="text-green-600 text-sm">✅ Processed</span>
                               <button className="text-blue-600 hover:text-blue-800 text-sm">View Summary</button>
                             </>
                           )}
-                          {doc.status === 'processing' && (
+                          {doc.status === 'processing' && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                             <span className="text-yellow-600 text-sm">⏳ Processing...</span>
                           )}
                           <button className="text-red-600 hover:text-red-800 text-sm">Delete</button>
@@ -3794,17 +3741,17 @@ function App() {
                     <div>
                       <span className="text-gray-500 text-sm">Social Media:</span>
                       <div className="flex space-x-3 mt-1">
-                        {company.socialMediaHandles.twitter && (
+                        {company.socialMediaHandles.twitter && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                             🐦 {company.socialMediaHandles.twitter}
                           </span>
                         )}
-                        {company.socialMediaHandles.linkedin && (
+                        {company.socialMediaHandles.linkedin && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
                             💼 {company.socialMediaHandles.linkedin}
                           </span>
                         )}
-                        {company.socialMediaHandles.instagram && (
+                        {company.socialMediaHandles.instagram && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                           <span className="text-xs bg-pink-100 text-pink-800 px-2 py-1 rounded">
                             📷 {company.socialMediaHandles.instagram}
                           </span>
@@ -4063,13 +4010,13 @@ function App() {
                             {notification.message}
                           </p>
                           
-                          {notification.campaigns_2025_10_25_19_00 &&
+                          {notification.campaigns_2025_10_25_19_00 && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                             <p className="mt-2 text-xs text-gray-500">
                               Campaign: {notification.campaigns_2025_10_25_19_00.name}
                             </p>
                           }
                           
-                          {notification.action_url &&
+                          {notification.action_url && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                             <div className="mt-3">
                               <span className="text-blue-600 text-sm hover:text-blue-800">
                                 View Details →
@@ -4078,7 +4025,7 @@ function App() {
                           }
                         </div>
                         
-                        {!notification.is_read &&
+                        {!notification.is_read && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                           <div className="flex-shrink-0">
                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           </div>
@@ -4226,17 +4173,6 @@ function App() {
           </div>
         );
         
-      case 'accounts':
-        return (
-          <ModernRedditSettings 
-            user={user}
-            setMessage={setMessage}
-            checkDatabase={checkDatabase}
-            startRedditAuth={startRedditAuth}
-            redditAuthStatus={redditAuthStatus}
-          />
-        );
-        
       default:
         return <div>Content for {activeTab}</div>;
     }
@@ -4330,7 +4266,7 @@ function App() {
                   }`}
                 >
                   Notifications
-                  {unreadCount > 0 && (
+                  {unreadCount > 0 && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
@@ -4353,7 +4289,7 @@ function App() {
       </header>
       
       <main className="max-w-7xl mx-auto py-6 px-4">
-        {message && (
+        {message && (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( (&& (&& ( (&& (&& ( ( (&& ( (&& (&& ( ( ( ( (
           <div className={`mb-4 p-4 rounded-lg ${message.includes('error') || message.includes('Error') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
             {message}
           </div>
