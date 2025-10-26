@@ -75,6 +75,14 @@ function App() {
   const [redditRedirectUri, setRedditRedirectUri] = useState('');
   const [redditUsername, setRedditUsername] = useState('');
   const [redditPassword, setRedditPassword] = useState('');
+  
+  // Reddit OAuth state
+  const [redditAuthStatus, setRedditAuthStatus] = useState({
+    authenticated: false,
+    loading: false,
+    user: null,
+    tokenExpired: false
+  });
 
   // Settings state - Instagram
   const [instagramAccessToken, setInstagramAccessToken] = useState('');
@@ -766,6 +774,177 @@ function App() {
     }
   };
 
+  // Reddit OAuth functions
+  const checkRedditAuthStatus = async () => {
+    if (!user) return;
+    
+    try {
+      setRedditAuthStatus(prev => ({ ...prev, loading: true }));
+      
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+        body: {
+          action: 'get_status',
+          user_id: user.id
+        }
+      });
+
+      if (error) throw error;
+
+      setRedditAuthStatus({
+        authenticated: data.authenticated,
+        loading: false,
+        user: data.reddit_user || null,
+        tokenExpired: data.token_expired || false
+      });
+
+    } catch (error) {
+      console.error('Reddit auth status check failed:', error);
+      setRedditAuthStatus({
+        authenticated: false,
+        loading: false,
+        user: null,
+        tokenExpired: false
+      });
+    }
+  };
+
+  const startRedditAuth = async () => {
+    if (!user) return;
+    
+    try {
+      setRedditAuthStatus(prev => ({ ...prev, loading: true }));
+      
+      const redirectUri = `${window.location.origin}/auth/reddit/callback`;
+      
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+        body: {
+          action: 'start_auth',
+          user_id: user.id,
+          redirect_uri: redirectUri
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.auth_url) {
+        // Redirect to Reddit OAuth
+        window.location.href = data.auth_url;
+      } else {
+        throw new Error('No auth URL received');
+      }
+
+    } catch (error) {
+      setMessage(`Reddit authentication failed: ${error.message}`);
+      setRedditAuthStatus(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleRedditCallback = async (code, state) => {
+    if (!user) return;
+    
+    try {
+      setRedditAuthStatus(prev => ({ ...prev, loading: true }));
+      
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+        body: {
+          action: 'handle_callback',
+          code,
+          state,
+          user_id: user.id
+        }
+      });
+
+      if (error) throw error;
+
+      setRedditAuthStatus({
+        authenticated: true,
+        loading: false,
+        user: data.reddit_user,
+        tokenExpired: false
+      });
+
+      setMessage('Reddit authentication successful!');
+      
+      // Send notification
+      await supabase.functions.invoke('notification_manager_2025_10_25_19_00', {
+        body: {
+          action: 'create_notification',
+          user_id: user.id,
+          type: 'reddit_connected',
+          title: 'Reddit Account Connected',
+          message: `Successfully connected Reddit account: ${data.reddit_user.username}`,
+          priority: 'medium',
+          category: 'system',
+          send_email: false
+        }
+      });
+
+    } catch (error) {
+      setMessage(`Reddit callback failed: ${error.message}`);
+      setRedditAuthStatus(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const refreshRedditToken = async () => {
+    if (!user) return;
+    
+    try {
+      setRedditAuthStatus(prev => ({ ...prev, loading: true }));
+      
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_handler_2025_10_26_00_00', {
+        body: {
+          action: 'refresh_token',
+          user_id: user.id
+        }
+      });
+
+      if (error) throw error;
+
+      setRedditAuthStatus(prev => ({
+        ...prev,
+        loading: false,
+        tokenExpired: false
+      }));
+
+      setMessage('Reddit token refreshed successfully!');
+
+    } catch (error) {
+      setMessage(`Token refresh failed: ${error.message}`);
+      setRedditAuthStatus(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  // Check Reddit auth status when user changes
+  useEffect(() => {
+    if (user) {
+      checkRedditAuthStatus();
+    }
+  }, [user]);
+
+  // Handle Reddit OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    const error = urlParams.get('error');
+    
+    if (window.location.pathname === '/auth/reddit/callback') {
+      if (error) {
+        setMessage(`Reddit authentication error: ${error}`);
+        // Redirect back to settings
+        window.history.replaceState({}, '', '/');
+        setActiveTab('settings');
+        setSettingsTab('reddit');
+      } else if (code && state && user) {
+        handleRedditCallback(code, state);
+        // Clean up URL
+        window.history.replaceState({}, '', '/');
+        setActiveTab('settings');
+        setSettingsTab('reddit');
+      }
+    }
+  }, [user]);
+
   const handleSaveInstagramSettings = async (e) => {
     e.preventDefault();
     setMessage('Instagram settings saved successfully! (Demo mode)');
@@ -1215,6 +1394,100 @@ function App() {
               <h4 className="font-medium text-blue-900 mb-2">🔐 Authentication Method: OAuth 2.0</h4>
               <p className="text-sm text-blue-800">Reddit uses OAuth 2.0 for secure API access. This is the recommended approach for automated interactions.</p>
             </div>
+
+            {/* Reddit Authentication Status */}
+            <div className="mb-6 p-4 rounded-lg border-2 border-dashed border-gray-300">
+              <h4 className="font-medium text-gray-900 mb-3">🔗 Reddit Account Connection</h4>
+              
+              {redditAuthStatus.loading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  <span className="text-sm text-gray-600">Checking authentication status...</span>
+                </div>
+              ) : redditAuthStatus.authenticated ? (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="font-medium text-green-800">Reddit Account Connected</span>
+                  </div>
+                  
+                  {redditAuthStatus.user && (
+                    <div className="bg-green-50 p-3 rounded-lg">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">Username:</span>
+                          <div className="font-medium">u/{redditAuthStatus.user.username}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Karma:</span>
+                          <div className="font-medium">{redditAuthStatus.user.karma?.toLocaleString() || 0}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Verified:</span>
+                          <div className="font-medium">{redditAuthStatus.user.verified ? '✅ Yes' : '❌ No'}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Connected:</span>
+                          <div className="font-medium">{new Date(redditAuthStatus.user.connected_at).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex space-x-3">
+                    {redditAuthStatus.tokenExpired && (
+                      <button
+                        onClick={refreshRedditToken}
+                        className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 text-sm"
+                        disabled={redditAuthStatus.loading}
+                      >
+                        🔄 Refresh Token
+                      </button>
+                    )}
+                    <button
+                      onClick={checkRedditAuthStatus}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
+                      disabled={redditAuthStatus.loading}
+                    >
+                      🔍 Check Status
+                    </button>
+                  </div>
+                  
+                  {redditAuthStatus.tokenExpired && (
+                    <div className="bg-yellow-50 p-3 rounded-lg">
+                      <p className="text-sm text-yellow-800">
+                        ⚠️ Your Reddit token has expired. Please refresh it to continue using Reddit automation.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-red-600">❌</span>
+                    <span className="font-medium text-red-800">Reddit Account Not Connected</span>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600">
+                    You need to connect your Reddit account to enable automation features.
+                  </p>
+                  
+                  <button
+                    onClick={startRedditAuth}
+                    className="bg-orange-600 text-white px-6 py-3 rounded-md hover:bg-orange-700 font-medium"
+                    disabled={redditAuthStatus.loading || !redditClientId || !redditClientSecret}
+                  >
+                    🔗 Connect Reddit Account
+                  </button>
+                  
+                  {(!redditClientId || !redditClientSecret) && (
+                    <p className="text-sm text-red-600">
+                      ⚠️ Please save your Reddit API credentials below first.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
             
             <form onSubmit={handleSaveRedditSettings} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1254,36 +1527,11 @@ function App() {
                   value={redditRedirectUri}
                   onChange={(e) => setRedditRedirectUri(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://your-domain.com/auth/callback"
+                  placeholder={`${window.location.origin}/auth/reddit/callback`}
                 />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reddit Username
-                  </label>
-                  <input
-                    type="text"
-                    value={redditUsername}
-                    onChange={(e) => setRedditUsername(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Your Reddit username"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Reddit Password
-                  </label>
-                  <input
-                    type="password"
-                    value={redditPassword}
-                    onChange={(e) => setRedditPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Your Reddit password"
-                  />
-                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Use: {window.location.origin}/auth/reddit/callback
+                </p>
               </div>
               
               <div className="bg-blue-50 p-4 rounded-lg">
@@ -1292,8 +1540,9 @@ function App() {
                   <li>1. Go to <a href="https://www.reddit.com/prefs/apps" target="_blank" rel="noopener noreferrer" className="underline">reddit.com/prefs/apps</a></li>
                   <li>2. Click "Create App" or "Create Another App"</li>
                   <li>3. Choose "web app" as the app type</li>
-                  <li>4. Set redirect URI to your domain + /auth/callback</li>
+                  <li>4. Set redirect URI to: {window.location.origin}/auth/reddit/callback</li>
                   <li>5. Copy the client ID and secret</li>
+                  <li>6. Save credentials below, then connect your account</li>
                 </ol>
               </div>
               
@@ -1301,7 +1550,7 @@ function App() {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Save Reddit Settings
+                Save Reddit API Credentials
               </button>
             </form>
           </div>
