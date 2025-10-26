@@ -480,8 +480,8 @@ function App() {
           platform,
           target_location: targetLocation,
           keywords,
-          monitoring_rules,
-          engagement_rules,
+          monitoring_rules: monitoringRules,
+          engagement_rules: engagementRules,
           schedule_settings: scheduleSettings,
           ai_settings: aiSettings
         }
