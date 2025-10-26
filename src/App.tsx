@@ -73,8 +73,6 @@ function App() {
   const [redditClientId, setRedditClientId] = useState('');
   const [redditClientSecret, setRedditClientSecret] = useState('');
   const [redditRedirectUri, setRedditRedirectUri] = useState('');
-  const [redditUsername, setRedditUsername] = useState('');
-  const [redditPassword, setRedditPassword] = useState('');
   
   // Reddit OAuth state
   const [redditAuthStatus, setRedditAuthStatus] = useState({
@@ -459,6 +457,7 @@ function App() {
       loadCompanies();
       loadCampaigns();
       loadComments();
+      loadSavedAPIKeys();
     }
   }, [user]);
 
@@ -582,19 +581,24 @@ function App() {
 
   // API Key management functions
   const handleSaveAPIKey = async (platform, keyType, keyValue, keyName) => {
+    if (!user) {
+      setMessage('Please log in to save API keys');
+      return;
+    }
+    
     try {
       setMessage('Saving API key...');
-      console.log('Saving API key:', { platform, keyType, keyName });
+      console.log('Saving API key:', { platform, keyType, keyName, userId: user.id });
 
       const { data, error } = await supabase.functions.invoke('api_key_manager_robust_2025_10_26_01_00', {
-        body: JSON.stringify({
+        body: {
           action: 'store_key',
           platform,
           key_type: keyType,
           key_value: keyValue,
           key_name: keyName,
-          user_id: user.id
-        })
+          user_id: user?.id
+        }
       });
 
       console.log('API response:', data, error);
@@ -618,6 +622,36 @@ function App() {
 
     } catch (error) {
       setMessage(`Failed to save API key: ${error.message}`);
+    }
+  };
+
+  const loadSavedAPIKeys = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('api_key_manager_robust_2025_10_26_01_00', {
+        body: {
+          action: 'get_keys',
+          user_id: user.id
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.result?.keys) {
+        const keys = data.result.keys;
+        
+        // Load Reddit keys
+        const redditClientId = keys.find(k => k.platform === 'reddit' && k.key_type === 'client_id');
+        const redditClientSecret = keys.find(k => k.platform === 'reddit' && k.key_type === 'client_secret');
+        
+        if (redditClientId) setRedditClientId('***saved***');
+        if (redditClientSecret) setRedditClientSecret('***saved***');
+        
+        console.log('Loaded saved API keys:', keys.length);
+      }
+    } catch (error) {
+      console.error('Failed to load saved API keys:', error);
     }
   };
 
@@ -780,17 +814,32 @@ function App() {
 
   // Reddit OAuth functions
   const checkRedditAuthStatus = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      console.log('No user or user ID found, skipping Reddit auth check');
+      setRedditAuthStatus({
+        authenticated: false,
+        loading: false,
+        user: null,
+        tokenExpired: false
+      });
+      return;
+    }
+    
+    console.log('Checking Reddit auth status for user:', user.id);
     
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
+      console.log('Calling Reddit OAuth with user ID:', user.id);
+      
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_debug_2025_10_26_01_00', {
         body: {
           action: 'get_status',
           user_id: user.id
         }
       });
+
+      console.log('Reddit OAuth response:', { data, error });
 
       if (error) throw error;
 
@@ -813,14 +862,19 @@ function App() {
   };
 
   const startRedditAuth = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      setMessage('Please log in to connect Reddit account');
+      return;
+    }
+    
+    console.log('Starting Reddit auth for user:', user.id);
     
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
       const redirectUri = `${window.location.origin}/auth/reddit/callback`;
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_debug_2025_10_26_01_00', {
         body: {
           action: 'start_auth',
           user_id: user.id,
@@ -844,12 +898,17 @@ function App() {
   };
 
   const handleRedditCallback = async (code, state) => {
-    if (!user) return;
+    if (!user?.id) {
+      setMessage('Please log in to complete Reddit authentication');
+      return;
+    }
+    
+    console.log('Handling Reddit callback for user:', user.id);
     
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_debug_2025_10_26_01_00', {
         body: {
           action: 'handle_callback',
           code,
@@ -890,12 +949,17 @@ function App() {
   };
 
   const refreshRedditToken = async () => {
-    if (!user) return;
+    if (!user?.id) {
+      setMessage('Please log in to refresh Reddit token');
+      return;
+    }
+    
+    console.log('Refreshing Reddit token for user:', user.id);
     
     try {
       setRedditAuthStatus(prev => ({ ...prev, loading: true }));
       
-      const { data, error } = await supabase.functions.invoke('reddit_oauth_fixed_2025_10_26_01_00', {
+      const { data, error } = await supabase.functions.invoke('reddit_oauth_debug_2025_10_26_01_00', {
         body: {
           action: 'refresh_token',
           user_id: user.id
