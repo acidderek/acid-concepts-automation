@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reddit OAuth Callback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .loading {
+            color: #666;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Reddit Authentication</h2>
+        <p id="status" class="loading">Processing...</p>
+    </div>
+
+    <script>
+        async function handleCallback() {
+            const statusEl = document.getElementById('status');
+            
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                const state = urlParams.get('state');
+                const error = urlParams.get('error');
+
+                if (error) {
+                    throw new Error(`Reddit OAuth error: ${error}`);
+                }
+
+                if (!code || !state) {
+                    throw new Error('Missing authorization code or state parameter');
+                }
+
+                statusEl.textContent = 'Exchanging authorization code...';
+
+                // Send the code and state back to parent window
+                // Let the parent handle the Edge Function call
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'REDDIT_OAUTH_CALLBACK',
+                        code: code,
+                        state: state
+                    }, window.location.origin);
+                    
+                    statusEl.textContent = '✅ Redirecting back to app...';
+                    statusEl.className = 'success';
+                    
+                    // Close popup after 1 second
+                    setTimeout(() => {
+                        window.close();
+                    }, 1000);
+                } else {
+                    throw new Error('Parent window not found');
+                }
+
+            } catch (error) {
+                console.error('Reddit callback error:', error);
+                statusEl.textContent = `❌ Error: ${error.message}`;
+                statusEl.className = 'error';
+                
+                // Send error message to parent window
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'REDDIT_OAUTH_ERROR',
+                        error: error.message
+                    }, window.location.origin);
+                }
+
+                // Close popup after 3 seconds
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            }
+        }
+
+        // Run callback handler when page loads
+        handleCallback();
+    </script>
+</body>
+</html>
